@@ -2068,15 +2068,19 @@ window.OUTSIDE_NEWS = /*NEWS_START*/[
 ]/*NEWS_END*/;
 
 // ----- Shared constants & utils (used by app.jsx and admin.jsx) -----
-window.LS_GAMES = "outside_games_v1";
-window.LS_DEVS  = "outside_devs_v1";
-window.LS_NEWS  = "outside_news_v1";
+window.LS_GAMES   = "outside_games_v1";
+window.LS_DEVS    = "outside_devs_v1";
+window.LS_NEWS    = "outside_news_v1";
+window.LS_CONFIG  = "outside_config_v1";
 
 window.loadLS = function(key, fallback) {
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
   catch(e) { return fallback; }
 };
 window.saveLS = function(key, val) { localStorage.setItem(key, JSON.stringify(val)); };
+
+window.OUTSIDE_CONFIG_DEFAULT = /*CONFIG_START*/{"discordUrl":"https://discord.gg/3EzBhdXEAj"}/*CONFIG_END*/;
+window.OUTSIDE_CONFIG = window.loadLS(window.LS_CONFIG, window.OUTSIDE_CONFIG_DEFAULT);
 
 window.GAME_GENRES = [
   { id: "rpg",          pt: "RPG",            en: "RPG" },
@@ -2361,7 +2365,7 @@ const Nav = ({ lang, setLang }) => {
           <button className="lang-toggle" onClick={() => setLang(lang === "pt" ? "en" : "pt")}>
             {lang === "pt" ? "EN" : "PT"}
           </button>
-          <a className="btn btn-primary" href="https://discord.gg/3EzBhdXEAj" target="_blank" rel="noreferrer">
+          <a className="btn btn-primary" href={(window.OUTSIDE_CONFIG||{}).discordUrl||"#"} target="_blank" rel="noreferrer">
             Discord
             <span className="arrow">→</span>
           </a>
@@ -2396,7 +2400,7 @@ const Hero = ({ lang }) => {
             </a>
             <a
               className="btn btn-ghost"
-              href="https://discord.gg/3EzBhdXEAj"
+              href={(window.OUTSIDE_CONFIG||{}).discordUrl||"#"}
               target="_blank"
               rel="noreferrer"
             >
@@ -2774,7 +2778,7 @@ const Community = ({ lang }) => {
             <div className="kicker">{t.community_kicker}</div>
             <h2 className="section-title">{t.community_title}</h2>
             <p className="community-body">{t.community_sub}</p>
-            <a className="btn btn-primary" href="https://discord.gg/3EzBhdXEAj" target="_blank" rel="noreferrer">
+            <a className="btn btn-primary" href={(window.OUTSIDE_CONFIG||{}).discordUrl||"#"} target="_blank" rel="noreferrer">
               {t.community_cta} <span className="arrow">→</span>
             </a>
           </div>
@@ -2819,7 +2823,7 @@ const Footer = ({ lang, games }) => {
           </div>
           <div className="footer-col">
             <h4>LINKS</h4>
-            <a href="https://discord.gg/3EzBhdXEAj" target="_blank" rel="noreferrer">Discord</a>
+            <a href={(window.OUTSIDE_CONFIG||{}).discordUrl||"#"} target="_blank" rel="noreferrer">Discord</a>
             <a href="https://www.roblox.com/communities/35928033" target="_blank" rel="noreferrer">Outside Hub — Roblox</a>
           </div>
         </div>
@@ -3075,7 +3079,7 @@ const UnrealTeaser = ({ lang }) => {
             <h2 className="unreal-title">{t.unreal_title}</h2>
             <p className="unreal-body">{t.unreal_body}</p>
             <a className="btn btn-primary"
-              href="https://discord.gg/3EzBhdXEAj"
+              href={(window.OUTSIDE_CONFIG||{}).discordUrl||"#"}
               target="_blank" rel="noreferrer"
               style={{ background: "oklch(0.72 0.2 300)", color: "#fff", boxShadow: "0 10px 40px -10px oklch(0.72 0.2 300 / 0.5)" }}>
               {t.unreal_follow} <span className="arrow">→</span>

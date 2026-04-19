@@ -325,15 +325,20 @@ window.OUTSIDE_NEWS = /*NEWS_START*/[
 ]/*NEWS_END*/;
 
 // ----- Shared constants & utils (used by app.jsx and admin.jsx) -----
-window.LS_GAMES = "outside_games_v1";
-window.LS_DEVS  = "outside_devs_v1";
-window.LS_NEWS  = "outside_news_v1";
+window.LS_GAMES   = "outside_games_v1";
+window.LS_DEVS    = "outside_devs_v1";
+window.LS_NEWS    = "outside_news_v1";
+window.LS_CONFIG  = "outside_config_v1";
 
 window.loadLS = function(key, fallback) {
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
   catch(e) { return fallback; }
 };
 window.saveLS = function(key, val) { localStorage.setItem(key, JSON.stringify(val)); };
+
+// Site config — editable via admin panel, baked into index.html on export
+window.OUTSIDE_CONFIG_DEFAULT = /*CONFIG_START*/{ "discordUrl": "https://discord.gg/3EzBhdXEAj" }/*CONFIG_END*/;
+window.OUTSIDE_CONFIG = window.loadLS(window.LS_CONFIG, window.OUTSIDE_CONFIG_DEFAULT);
 
 window.GAME_GENRES = [
   { id: "rpg",          pt: "RPG",            en: "RPG" },

@@ -160,7 +160,7 @@ const Nav = ({ lang, setLang }) => {
           <button className="lang-toggle" onClick={() => setLang(lang === "pt" ? "en" : "pt")}>
             {lang === "pt" ? "EN" : "PT"}
           </button>
-          <a className="btn btn-primary" href="https://discord.gg/3EzBhdXEAj" target="_blank" rel="noreferrer">
+          <a className="btn btn-primary" href={(window.OUTSIDE_CONFIG||{}).discordUrl||"#"} target="_blank" rel="noreferrer">
             Discord
             <span className="arrow">→</span>
           </a>
@@ -195,7 +195,7 @@ const Hero = ({ lang }) => {
             </a>
             <a
               className="btn btn-ghost"
-              href="https://discord.gg/3EzBhdXEAj"
+              href={(window.OUTSIDE_CONFIG||{}).discordUrl||"#"}
               target="_blank"
               rel="noreferrer"
             >
@@ -573,7 +573,7 @@ const Community = ({ lang }) => {
             <div className="kicker">{t.community_kicker}</div>
             <h2 className="section-title">{t.community_title}</h2>
             <p className="community-body">{t.community_sub}</p>
-            <a className="btn btn-primary" href="https://discord.gg/3EzBhdXEAj" target="_blank" rel="noreferrer">
+            <a className="btn btn-primary" href={(window.OUTSIDE_CONFIG||{}).discordUrl||"#"} target="_blank" rel="noreferrer">
               {t.community_cta} <span className="arrow">→</span>
             </a>
           </div>
@@ -618,7 +618,7 @@ const Footer = ({ lang, games }) => {
           </div>
           <div className="footer-col">
             <h4>LINKS</h4>
-            <a href="https://discord.gg/3EzBhdXEAj" target="_blank" rel="noreferrer">Discord</a>
+            <a href={(window.OUTSIDE_CONFIG||{}).discordUrl||"#"} target="_blank" rel="noreferrer">Discord</a>
             <a href="https://www.roblox.com/communities/35928033" target="_blank" rel="noreferrer">Outside Hub — Roblox</a>
           </div>
         </div>
@@ -874,7 +874,7 @@ const UnrealTeaser = ({ lang }) => {
             <h2 className="unreal-title">{t.unreal_title}</h2>
             <p className="unreal-body">{t.unreal_body}</p>
             <a className="btn btn-primary"
-              href="https://discord.gg/3EzBhdXEAj"
+              href={(window.OUTSIDE_CONFIG||{}).discordUrl||"#"}
               target="_blank" rel="noreferrer"
               style={{ background: "oklch(0.72 0.2 300)", color: "#fff", boxShadow: "0 10px 40px -10px oklch(0.72 0.2 300 / 0.5)" }}>
               {t.unreal_follow} <span className="arrow">→</span>
