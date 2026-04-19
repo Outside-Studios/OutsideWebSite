@@ -20,11 +20,8 @@ async function sha256hex(str) {
 
 // On first load: if no hash stored yet, hash the bootstrap password and store it.
 // After that the plaintext is never needed again — change it via the panel.
-(async () => {
-  if (!localStorage.getItem(LS_ADMIN_HASH)) {
-    localStorage.setItem(LS_ADMIN_HASH, await sha256hex("outside2026"));
-  }
-})();
+const BAKED_HASH = /*HASH_START*/""/*HASH_END*/;
+(async () => { if (!localStorage.getItem(LS_ADMIN_HASH)) { localStorage.setItem(LS_ADMIN_HASH, BAKED_HASH || await sha256hex("outside2026")); } })();
 
 const PLATFORMS = ["PC", "Mobile", "Xbox", "PlayStation", "Browser"];
 const DEV_ENGINES = ["Roblox", "Unreal Engine 5", "Unreal Engine 4", "Unity", "Godot", "Custom"];
@@ -73,7 +70,7 @@ const DEV_FOCUS_OPTIONS = [
 ];
 
 // Default developers
-const DEFAULT_DEVS = [
+const DEFAULT_DEVS = /*DEVS_START*/[
   {
     id: "ruiso",
     name: "Ruiso",
@@ -104,7 +101,7 @@ const DEFAULT_DEVS = [
     cpu: "", gpu: "", ram: "",
     games: ["pixel-cultivation","isekai-idle","eternal-soul-3","ascension","eternal-soul-2","martial-peak","eternal-soul"],
   },
-];
+]/*DEVS_END*/;
 
 function loadLS(key, fallback) {
   try {
@@ -218,7 +215,7 @@ const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNe
 
   // Session: stored value is expiry timestamp (ms). Valid if in the future.
   const sessionValid = () => {
-    const exp = parseInt(localStorage.getItem(LS_ADMIN_AUTH) || "0");
+    const exp = parseInt(sessionStorage.getItem(LS_ADMIN_AUTH) || "0");
     return Date.now() < exp;
   };
 
@@ -265,7 +262,7 @@ const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNe
     if (inputHash === storedHash) {
       localStorage.removeItem(LS_ADMIN_ATTEMPTS);
       localStorage.removeItem(LS_ADMIN_LOCKOUT);
-      localStorage.setItem(LS_ADMIN_AUTH, (Date.now() + SESSION_MS).toString());
+      sessionStorage.setItem(LS_ADMIN_AUTH, (Date.now() + SESSION_MS).toString());
       setAuthed(true);
       setErr("");
       setLockoutLeft(0);
@@ -289,7 +286,7 @@ const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNe
 
   const logout = () => {
     setAuthed(false);
-    localStorage.removeItem(LS_ADMIN_AUTH);
+    sessionStorage.removeItem(LS_ADMIN_AUTH);
     onClose();
   };
 
@@ -376,6 +373,31 @@ const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNe
     if (editing.isNew) setNews([d, ...news]);
     else setNews(news.map((x) => (x.id === d.id ? d : x)));
     setEditing(null);
+  };
+
+  const exportHTML = () => {
+    const dataEl = document.getElementById('outside-data');
+    const adminEl = document.getElementById('outside-admin');
+    const appEl = document.getElementById('outside-app');
+    const styleEl = document.querySelector('style');
+    if (!dataEl || !adminEl || !appEl) { alert('IDs de script não encontrados. Reconstrua o HTML.'); return; }
+    let dataScript = dataEl.textContent;
+    let adminScript = adminEl.textContent;
+    const appScript = appEl.textContent;
+    const css = styleEl ? styleEl.textContent : '';
+    dataScript = dataScript.replace(/\/\*GAMES_START\*\/[\s\S]*?\/\*GAMES_END\*\//, `/*GAMES_START*/${JSON.stringify(games, null, 2)}/*GAMES_END*/`);
+    dataScript = dataScript.replace(/\/\*NEWS_START\*\/[\s\S]*?\/\*NEWS_END\*\//, `/*NEWS_START*/${JSON.stringify(news, null, 2)}/*NEWS_END*/`);
+    adminScript = adminScript.replace(/\/\*DEVS_START\*\/[\s\S]*?\/\*DEVS_END\*\//, `/*DEVS_START*/${JSON.stringify(devs, null, 2)}/*DEVS_END*/`);
+    const currentHash = localStorage.getItem('outside_admin_hash_v2') || '';
+    if (currentHash) adminScript = adminScript.replace(/\/\*HASH_START\*\/[\s\S]*?\/\*HASH_END\*\//, `/*HASH_START*/"${currentHash}"/*HASH_END*/`);
+    const headLinks = [...document.head.querySelectorAll('link, script[src]')].map(el => el.outerHTML).join('\n');
+    const html = `<!doctype html>\n<html lang="pt">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>Outside Studio</title>\n${headLinks}\n<style>\n${css}\n</style>\n</head>\n<body>\n<div id="root"></div>\n<script id="outside-data">\n${dataScript}\n</script>\n<script id="outside-admin" type="text/babel">\n${adminScript}\n</script>\n<script id="outside-app" type="text/babel">\n${appScript}\n</script>\n</body>\n</html>`;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'Outside Studio.html';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
   };
 
   const resetAll = () => {
@@ -563,6 +585,7 @@ const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNe
             {authed && (
               <div className="admin-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <button className="admin-text-link" onClick={() => setChangingPwd(true)}>🔑 Alterar senha</button>
+                <button className="admin-btn primary" onClick={exportHTML} style={{ marginLeft: "auto" }}>⬇ Exportar HTML</button>
                 <button className="admin-text-link" onClick={logout}>← {t.admin_logout}</button>
               </div>
             )}

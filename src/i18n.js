@@ -194,7 +194,7 @@ window.OUTSIDE_I18N = {
   }
 };
 
-window.OUTSIDE_GAMES = [
+window.OUTSIDE_GAMES = /*GAMES_START*/[
   {
     id: "pixel-cultivation",
     title: "Pixel Cultivation",
@@ -294,9 +294,9 @@ window.OUTSIDE_GAMES = [
     year: "2022",
     platforms: ["PC", "Mobile"]
   }
-];
+]/*GAMES_END*/;
 
-window.OUTSIDE_NEWS = [
+window.OUTSIDE_NEWS = /*NEWS_START*/[
   {
     id: "news-1",
     gameId: "pixel-cultivation",
@@ -330,4 +330,4 @@ window.OUTSIDE_NEWS = [
     body_pt: "Ruiso e Yato compartilham o roadmap de 2026 e o que esperar da Outside nos próximos meses.",
     body_en: "Ruiso and Yato share the 2026 roadmap and what to expect from Outside in the coming months."
   }
-];
+]/*NEWS_END*/;
