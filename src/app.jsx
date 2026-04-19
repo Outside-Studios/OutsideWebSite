@@ -263,12 +263,6 @@ const GameCard = ({ game, lang, onOpen, stats }) => {
         </div>
         <div className="game-year">{game.year}</div>
         <div className="game-engine-overlay"><EngineTag engine={game.engine} /></div>
-        {stats && stats.playing > 0 && (
-          <div className="game-playing-badge">
-            <span className="game-playing-dot" />
-            {stats.playing.toLocaleString()}
-          </div>
-        )}
       </div>
       <div className="game-body">
         <div className="game-title">{game.title}</div>
@@ -276,6 +270,13 @@ const GameCard = ({ game, lang, onOpen, stats }) => {
           {genreLabel(game, lang)}
         </div>
         <PlatformBadges platforms={game.platforms} />
+        {stats != null && (
+          <div className="game-active-users">
+            <span className="game-playing-dot" />
+            <span>{stats.playing != null ? stats.playing.toLocaleString() : "—"}</span>
+            <span className="game-active-label">{lang === "pt" ? "usuários ativos" : "active users"}</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -294,10 +295,11 @@ const FeaturedCard = ({ game, lang, onOpen, stats }) => {
             <span className="dot" /> {t.games_featured}
           </div>
           <h3 className="featured-title">{game.title}</h3>
-          {stats && stats.playing > 0 && (
+          {stats != null && (
             <div className="featured-playing">
               <span className="game-playing-dot" />
-              {stats.playing.toLocaleString()} {lang === "pt" ? "jogando agora" : "playing now"}
+              <strong>{stats.playing != null ? stats.playing.toLocaleString() : "—"}</strong>
+              {lang === "pt" ? " usuários ativos" : " active users"}
             </div>
           )}
           <div className="featured-tag">{genreLabel(game, lang)}</div>

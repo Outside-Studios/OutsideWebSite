@@ -1649,7 +1649,7 @@ body[data-cards="sharp"] .news-card { border-radius: 2px; }
 .ue5-corners::before { top: 12px; left: 12px; border-right: none; border-bottom: none; }
 .ue5-corners::after { bottom: 12px; right: 12px; border-left: none; border-top: none; }
 
-/* ── Roblox live player count badges ──────────────────────────────── */
+/* ── Roblox active users ──────────────────────────────────────────── */
 .game-playing-dot {
   display: inline-block;
   width: 7px; height: 7px;
@@ -1664,36 +1664,32 @@ body[data-cards="sharp"] .news-card { border-radius: 2px; }
   50%       { opacity: 0.6; box-shadow: 0 0 12px #22c55e; }
 }
 
-/* Badge over grid card thumbnail */
-.game-playing-badge {
-  position: absolute;
-  bottom: 8px; left: 8px;
-  z-index: 3;
-  display: flex; align-items: center; gap: 5px;
-  background: rgba(0,0,0,0.72);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(34,197,94,0.3);
-  border-radius: 20px;
-  padding: 3px 9px 3px 7px;
+/* Active users line inside card body */
+.game-active-users {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 6px;
   font-family: var(--mono);
   font-size: 11px;
   color: #86efac;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  pointer-events: none;
+}
+.game-active-label {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-/* Badge on featured card */
+/* Active users on featured card */
 .featured-playing {
-  display: inline-flex; align-items: center; gap: 7px;
+  display: inline-flex; align-items: center; gap: 8px;
   background: rgba(34,197,94,0.08);
   border: 1px solid rgba(34,197,94,0.25);
   border-radius: 20px;
-  padding: 4px 12px 4px 10px;
+  padding: 5px 14px 5px 10px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   color: #86efac;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
