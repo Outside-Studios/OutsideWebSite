@@ -1,0 +1,84 @@
+================================================================
+  OUTSIDE STUDIO — COMO ATUALIZAR O SITE NO GITHUB
+================================================================
+
+FLUXO RESUMIDO
+--------------
+  Editar no painel  →  Exportar HTML  →  Git push
+
+================================================================
+PASSO A PASSO COMPLETO
+================================================================
+
+PASSO 1 — Abrir o painel admin local
+--------------------------------------
+  Abra o arquivo:
+    C:\Users\LuizF\OneDrive\Documentos\WebPage\Outside Studio.html
+
+  (clique duplo no arquivo ou arraste para o navegador)
+
+  O painel admin abre com o botão  ◆  no canto inferior esquerdo,
+  ou pressione  Ctrl + Shift + A.
+
+
+PASSO 2 — Fazer as alterações
+-------------------------------
+  Edite jogos, desenvolvedores ou devlogs pelo painel.
+  As mudanças ficam salvas automaticamente no navegador (localStorage).
+
+
+PASSO 3 — Exportar o HTML público
+-----------------------------------
+  Dentro do painel, clique em:
+    ⬇ Exportar HTML
+
+  Isso baixa um arquivo  index.html  na sua pasta de Downloads.
+  Esse arquivo é o site público — SEM o painel admin.
+
+
+PASSO 4 — Substituir o index.html do projeto
+----------------------------------------------
+  Mova/copie o index.html baixado para:
+    C:\Users\LuizF\OneDrive\Documentos\WebPage\
+
+  (substitua o arquivo antigo quando perguntado)
+
+
+PASSO 5 — Enviar para o GitHub
+--------------------------------
+  Abra o Git Bash (ou terminal) na pasta do projeto e rode:
+
+    cd "C:\Users\LuizF\OneDrive\Documentos\WebPage"
+    git add index.html
+    git commit -m "update: atualizar conteúdo do site"
+    git push origin main
+
+  Pronto! Em ~1 minuto o site no GitHub Pages estará atualizado.
+
+
+================================================================
+ENDEREÇO DO SITE PUBLICADO
+================================================================
+
+  https://outside-studios.github.io/OutsideWebSite/
+
+
+================================================================
+DICAS IMPORTANTES
+================================================================
+
+  - Nunca faça  git add .  — isso pode incluir o Outside Studio.html
+    (com o painel) ou outros arquivos locais por engano.
+    Sempre use  git add index.html  (só o arquivo público).
+
+  - Se quiser verificar o que será enviado antes do commit, rode:
+      git diff --staged index.html
+
+  - O arquivo  Outside Studio.html  (com o painel) fica APENAS no
+    seu computador e nunca vai para o GitHub. Isso está configurado
+    no .gitignore do projeto.
+
+  - Se perder o Outside Studio.html, reconstrua com o comando no
+    CLAUDE.md (se existir) ou peça ao assistente para reconstruir.
+
+================================================================
