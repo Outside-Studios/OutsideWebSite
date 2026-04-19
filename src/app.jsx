@@ -247,7 +247,7 @@ const Hero = ({ lang }) => {
   );
 };
 
-const GameCard = ({ game, lang, onOpen }) => {
+const GameCard = ({ game, lang, onOpen, stats }) => {
   const t = window.OUTSIDE_I18N[lang];
   const statusMap = {
     live: t.games_status_live,
