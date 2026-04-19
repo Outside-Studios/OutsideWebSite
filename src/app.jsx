@@ -263,6 +263,12 @@ const GameCard = ({ game, lang, onOpen }) => {
         </div>
         <div className="game-year">{game.year}</div>
         <div className="game-engine-overlay"><EngineTag engine={game.engine} /></div>
+        {stats && stats.playing > 0 && (
+          <div className="game-playing-badge">
+            <span className="game-playing-dot" />
+            {stats.playing.toLocaleString()}
+          </div>
+        )}
       </div>
       <div className="game-body">
         <div className="game-title">{game.title}</div>
@@ -275,7 +281,7 @@ const GameCard = ({ game, lang, onOpen }) => {
   );
 };
 
-const FeaturedCard = ({ game, lang, onOpen }) => {
+const FeaturedCard = ({ game, lang, onOpen, stats }) => {
   const t = window.OUTSIDE_I18N[lang];
   return (
     <div className="featured-card">
@@ -288,6 +294,12 @@ const FeaturedCard = ({ game, lang, onOpen }) => {
             <span className="dot" /> {t.games_featured}
           </div>
           <h3 className="featured-title">{game.title}</h3>
+          {stats && stats.playing > 0 && (
+            <div className="featured-playing">
+              <span className="game-playing-dot" />
+              {stats.playing.toLocaleString()} {lang === "pt" ? "jogando agora" : "playing now"}
+            </div>
+          )}
           <div className="featured-tag">{genreLabel(game, lang)}</div>
           <div className="featured-meta-row">
             <EngineTag engine={game.engine} />
@@ -310,7 +322,10 @@ const FeaturedCard = ({ game, lang, onOpen }) => {
   );
 };
 
-const Games = ({ lang, onOpen, games }) => {
+// Extract Roblox place ID from a game URL
+const getPlaceId = (url) => (url || '').match(/roblox\.com\/games\/(\d+)/)?.[1];
+
+const Games = ({ lang, onOpen, games, robloxStats = {} }) => {
   const t = window.OUTSIDE_I18N[lang];
   const featured = games.find((g) => g.featured);
   const others = games.filter((g) => !g.featured);
@@ -325,10 +340,10 @@ const Games = ({ lang, onOpen, games }) => {
             <p className="section-sub">{t.games_sub}</p>
           </div>
         </div>
-        {featured && <FeaturedCard game={featured} lang={lang} onOpen={onOpen} />}
+        {featured && <FeaturedCard game={featured} lang={lang} onOpen={onOpen} stats={robloxStats[getPlaceId(featured.url)]} />}
         <div className="games-grid">
           {others.map((g) => (
-            <GameCard key={g.id} game={g} lang={lang} onOpen={onOpen} />
+            <GameCard key={g.id} game={g} lang={lang} onOpen={onOpen} stats={robloxStats[getPlaceId(g.url)]} />
           ))}
         </div>
       </div>
@@ -932,6 +947,15 @@ const App = () => {
   const [games, setGamesState] = useState(() => window.loadLS(window.LS_GAMES, window.OUTSIDE_GAMES.map(g => ({...g}))));
   const [devs, setDevsState] = useState(() => window.loadLS(window.LS_DEVS, window.DEFAULT_DEVS.map(d => ({...d}))));
   const [news, setNewsState] = useState(() => window.loadLS(window.LS_NEWS, window.OUTSIDE_NEWS.map(n => ({...n, id: n.id || Math.random().toString(36).slice(2,9)}))));
+  const [robloxStats, setRobloxStats] = useState({});
+
+  // Fetch player counts from stats.json (updated by GitHub Actions every ~15 min)
+  useEffect(() => {
+    fetch('./stats.json?_=' + Date.now())
+      .then(r => r.json())
+      .then(d => setRobloxStats(d.games || {}))
+      .catch(() => {});
+  }, []);
 
   const setGames = (g) => { setGamesState(g); window.saveLS(window.LS_GAMES, g); };
   const setDevs = (d) => { setDevsState(d); window.saveLS(window.LS_DEVS, d); };
@@ -995,7 +1019,7 @@ const App = () => {
       <Nav lang={lang} setLang={setLang} />
       <main>
         <Hero lang={lang} />
-        <Games lang={lang} onOpen={setModalGame} games={games} />
+        <Games lang={lang} onOpen={setModalGame} games={games} robloxStats={robloxStats} />
         <UnrealTeaser lang={lang} />
         <Team lang={lang} members={devs} games={games} />
         <Goals lang={lang} />

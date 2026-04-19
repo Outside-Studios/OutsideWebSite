@@ -1,0 +1,77 @@
+name: Update Roblox Stats
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # every 15 minutes
+  workflow_dispatch:           # allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch Roblox player counts
+        run: |
+          set -e
+
+          # Extract place IDs from Roblox game URLs baked in index.html
+          PLACE_IDS=$(grep -o '"url": "https://www\.roblox\.com/games/[0-9]*' index.html \
+                    | grep -o '[0-9]*$' | sort -u)
+
+          echo "Place IDs found: $(echo $PLACE_IDS | tr '\n' ' ')"
+
+          GAMES_JSON=""
+          FIRST=true
+
+          for PLACE_ID in $PLACE_IDS; do
+            echo "--- Processing place $PLACE_ID ---"
+
+            # Step 1: place ID → universe ID
+            UNIV=$(curl -sf --max-time 8 \
+              "https://apis.roblox.com/universes/v1/places/$PLACE_ID/universe" || echo '{}')
+            UNIVERSE_ID=$(echo "$UNIV" | grep -o '"universeId":[0-9]*' | grep -o '[0-9]*')
+
+            if [ -z "$UNIVERSE_ID" ]; then
+              echo "  No universe for place $PLACE_ID, skipping"
+              sleep 0.4
+              continue
+            fi
+
+            sleep 0.4
+
+            # Step 2: universe ID → playing / visits
+            GDATA=$(curl -sf --max-time 8 \
+              "https://games.roblox.com/v1/games?universeIds=$UNIVERSE_ID" || echo '{}')
+            PLAYING=$(echo "$GDATA" | grep -o '"playing":[0-9]*' | head -1 | grep -o '[0-9]*')
+            VISITS=$(echo  "$GDATA" | grep -o '"visits":[0-9]*'  | head -1 | grep -o '[0-9]*')
+            PLAYING=${PLAYING:-0}
+            VISITS=${VISITS:-0}
+
+            echo "  universeId=$UNIVERSE_ID  playing=$PLAYING  visits=$VISITS"
+
+            if [ "$FIRST" = true ]; then FIRST=false; else GAMES_JSON="$GAMES_JSON,"; fi
+            GAMES_JSON="${GAMES_JSON}\"${PLACE_ID}\":{\"playing\":${PLAYING},\"visits\":${VISITS}}"
+
+            sleep 0.4
+          done
+
+          # Write stats.json
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          printf '{"updated":"%s","games":{%s}}\n' "$TIMESTAMP" "$GAMES_JSON" > stats.json
+
+          echo "stats.json:"
+          cat stats.json
+
+      - name: Commit stats
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add stats.json
+          git diff --staged --quiet \
+            && echo "No changes to commit" \
+            || git commit -m "chore: update roblox stats [skip ci]" && git push
