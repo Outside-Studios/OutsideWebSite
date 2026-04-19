@@ -2,7 +2,7 @@
 const { useState, useEffect, useRef } = React;
 
 // Helper: get current language (persisted)
-const getLang = () => localStorage.getItem("outside_lang") || "pt";
+const getLang = () => localStorage.getItem("outside_lang") || "en";
 const setLangLS = (l) => localStorage.setItem("outside_lang", l);
 
 // Placeholder art generator — subtle striped gradient with game name
