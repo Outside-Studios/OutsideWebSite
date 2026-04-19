@@ -819,6 +819,93 @@ const TweaksPanel = ({ open, tweaks, setTweak }) => {
   );
 };
 
+// ----- Roblox Community Card -----
+const RobloxCommunity = ({ lang }) => {
+  const t = window.OUTSIDE_I18N[lang];
+  return (
+    <section className="rblx-community">
+      <div className="container">
+        <div className="rblx-card">
+          <div className="rblx-visual">
+            <div className="rblx-mark"><span>O</span></div>
+          </div>
+          <div className="rblx-body">
+            <div className="rblx-tag">ROBLOX COMMUNITY</div>
+            <div className="rblx-name">Outside Hub</div>
+            <p className="rblx-sub">{t.community_roblox_sub}</p>
+            <div className="rblx-stats">
+              <div className="rblx-stat">
+                <div className="rblx-stat-num">1K+</div>
+                <div className="rblx-stat-label">{t.community_members_label}</div>
+              </div>
+              <div className="rblx-stat">
+                <div className="rblx-stat-num">1M+</div>
+                <div className="rblx-stat-label">{t.community_visits_label}</div>
+              </div>
+              <div className="rblx-stat">
+                <div className="rblx-stat-num">07</div>
+                <div className="rblx-stat-label">{t.community_games_label}</div>
+              </div>
+            </div>
+            <a className="btn btn-ghost rblx-cta"
+              href="https://www.roblox.com/communities/35928033/Outside-Hub#!/about"
+              target="_blank" rel="noreferrer" style={{ width: "fit-content" }}>
+              {t.community_roblox_cta} <span className="arrow">→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// ----- Unreal Engine 5 Teaser -----
+const UnrealTeaser = ({ lang }) => {
+  const t = window.OUTSIDE_I18N[lang];
+  return (
+    <section id="unreal" className="unreal">
+      <div className="container">
+        <div className="unreal-card">
+          <div className="unreal-content">
+            <div className="unreal-kicker">
+              <span className="dot" />
+              {t.unreal_kicker}
+            </div>
+            <h2 className="unreal-title">{t.unreal_title}</h2>
+            <p className="unreal-body">{t.unreal_body}</p>
+            <a className="btn btn-primary"
+              href="https://discord.gg/3EzBhdXEAj"
+              target="_blank" rel="noreferrer"
+              style={{ background: "oklch(0.72 0.2 300)", color: "#fff", boxShadow: "0 10px 40px -10px oklch(0.72 0.2 300 / 0.5)" }}>
+              {t.unreal_follow} <span className="arrow">→</span>
+            </a>
+            <div className="unreal-meta">
+              <div className="unreal-meta-item">
+                <div className="k">ENGINE</div>
+                <div className="v">Unreal Engine 5</div>
+              </div>
+              <div className="unreal-meta-item">
+                <div className="k">{lang === "pt" ? "FASE" : "STAGE"}</div>
+                <div className="v">{t.unreal_stage}</div>
+              </div>
+              <div className="unreal-meta-item">
+                <div className="k">{lang === "pt" ? "PLATAFORMA" : "PLATFORM"}</div>
+                <div className="v">{t.unreal_platform}</div>
+              </div>
+            </div>
+          </div>
+          <div className="ue5-visual ue5-corners">
+            <div className="ue5-logo">
+              <div className="big">UE5</div>
+              <div className="sub">// new horizon</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 // ----- App -----
 const TWEAK_DEFAULTS = {
   accent: "emerald",
@@ -909,12 +996,12 @@ const App = () => {
       <main>
         <Hero lang={lang} />
         <Games lang={lang} onOpen={setModalGame} games={games} />
-        <window.UnrealTeaser lang={lang} />
+        <UnrealTeaser lang={lang} />
         <Team lang={lang} members={devs} games={games} />
         <Goals lang={lang} />
         <News lang={lang} items={news} onOpen={setModalNews} games={games} />
         <Community lang={lang} />
-        <window.RobloxCommunity lang={lang} />
+        <RobloxCommunity lang={lang} />
       </main>
       <Footer lang={lang} games={games} />
       <Modal game={modalGame} lang={lang} onClose={() => setModalGame(null)} allNews={news} onOpenNews={setModalNews} />

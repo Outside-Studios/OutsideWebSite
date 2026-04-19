@@ -323,3 +323,92 @@ window.OUTSIDE_NEWS = /*NEWS_START*/[
     body_en: "Ruiso and Yato share the 2026 roadmap and what to expect from Outside in the coming months."
   }
 ]/*NEWS_END*/;
+
+// ----- Shared constants & utils (used by app.jsx and admin.jsx) -----
+window.LS_GAMES = "outside_games_v1";
+window.LS_DEVS  = "outside_devs_v1";
+window.LS_NEWS  = "outside_news_v1";
+
+window.loadLS = function(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch(e) { return fallback; }
+};
+window.saveLS = function(key, val) { localStorage.setItem(key, JSON.stringify(val)); };
+
+window.GAME_GENRES = [
+  { id: "rpg",          pt: "RPG",            en: "RPG" },
+  { id: "action",       pt: "Ação",           en: "Action" },
+  { id: "adventure",    pt: "Aventura",       en: "Adventure" },
+  { id: "idle",         pt: "Idle",           en: "Idle" },
+  { id: "cultivation",  pt: "Cultivo",        en: "Cultivation" },
+  { id: "isekai",       pt: "Isekai",         en: "Isekai" },
+  { id: "pixelart",     pt: "Pixel Art",      en: "Pixel Art" },
+  { id: "simulation",   pt: "Simulação",      en: "Simulation" },
+  { id: "strategy",     pt: "Estratégia",     en: "Strategy" },
+  { id: "survival",     pt: "Sobrevivência",  en: "Survival" },
+  { id: "horror",       pt: "Horror",         en: "Horror" },
+  { id: "puzzle",       pt: "Puzzle",         en: "Puzzle" },
+  { id: "platformer",   pt: "Plataforma",     en: "Platformer" },
+  { id: "fighting",     pt: "Luta",           en: "Fighting" },
+  { id: "shooter",      pt: "Shooter",        en: "Shooter" },
+  { id: "battleroyale", pt: "Battle Royale",  en: "Battle Royale" },
+  { id: "roguelike",    pt: "Roguelike",      en: "Roguelike" },
+  { id: "towerdefense", pt: "Tower Defense",  en: "Tower Defense" },
+  { id: "farming",      pt: "Fazenda",        en: "Farming" },
+  { id: "openworld",    pt: "Mundo Aberto",   en: "Open World" },
+  { id: "mmo",          pt: "MMO",            en: "MMO" },
+  { id: "sandbox",      pt: "Sandbox",        en: "Sandbox" },
+  { id: "sports",       pt: "Esportes",       en: "Sports" },
+  { id: "racing",       pt: "Corrida",        en: "Racing" },
+  { id: "cardgame",     pt: "Cartas",         en: "Card Game" },
+];
+
+window.DEV_FOCUS_OPTIONS = [
+  { id: "systems",    pt: "Sistemas",      en: "Systems" },
+  { id: "gameplay",   pt: "Gameplay",      en: "Gameplay" },
+  { id: "mapper",     pt: "Mapper",        en: "Level Design" },
+  { id: "gamedesign", pt: "Game Design",   en: "Game Design" },
+  { id: "modeling",   pt: "Modelagem",     en: "Modeling" },
+  { id: "art2d",      pt: "Arte 2D",       en: "2D Art" },
+  { id: "art3d",      pt: "Arte 3D",       en: "3D Art" },
+  { id: "ui",         pt: "UI/UX",         en: "UI/UX" },
+  { id: "vfx",        pt: "VFX",           en: "VFX" },
+  { id: "animation",  pt: "Animação",      en: "Animation" },
+  { id: "audio",      pt: "Áudio",         en: "Audio" },
+  { id: "narrative",  pt: "Narrativa",     en: "Narrative" },
+  { id: "qa",         pt: "QA / Testes",   en: "QA / Testing" },
+  { id: "scripter",   pt: "Scripter",      en: "Scripter" },
+];
+
+window.DEFAULT_DEVS = /*DEVS_START*/[
+  {
+    id: "ruiso",
+    name: "Ruiso",
+    role: "head",
+    avatar: "https://cdn.discordapp.com/avatars/573711473172545547/f260d0376d04d71ca9c4570e5f49b5b2.webp?size=128",
+    roblox: "https://www.roblox.com/users/112644440/profile",
+    roblox_username: "Ruiso",
+    discord: "ruiso_",
+    focus: ["systems", "mapper", "gameplay"],
+    education_pt: "Formado em Análise e Desenvolvimento de Software",
+    education_en: "Degree in Systems Analysis & Software Development",
+    engines: ["Roblox", "Unreal Engine 5"],
+    cpu: "", gpu: "", ram: "",
+    games: ["pixel-cultivation","isekai-idle","eternal-soul-3","ascension","eternal-soul-2","martial-peak","eternal-soul"],
+  },
+  {
+    id: "yato",
+    name: "Yato",
+    role: "dev",
+    avatar: "https://cdn.discordapp.com/avatars/407964795501936663/e70a23368cbcd8df7bb1faae95f6e7c4.webp?size=128",
+    roblox: "https://www.roblox.com/users/7907066510/profile",
+    roblox_username: "Yato",
+    discord: "yato2451",
+    focus: ["systems", "modeling", "ui"],
+    education_pt: "Formado em Análise e Desenvolvimento de Software",
+    education_en: "Degree in Systems Analysis & Software Development",
+    engines: ["Roblox"],
+    cpu: "", gpu: "", ram: "",
+    games: ["pixel-cultivation","isekai-idle","eternal-soul-3","ascension","eternal-soul-2","martial-peak","eternal-soul"],
+  },
+]/*DEVS_END*/;
