@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -8,12 +8,14 @@
 <meta http-equiv="Expires" content="0">
 <title>Outside Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
 <style>
+
+
 /* Outside Studio — Cyberpunk neon, emerald + cyan on midnight */
 :root {
   --bg: #070b14;
@@ -489,6 +491,30 @@ section { padding: 120px 0; position: relative; }
   max-width: 460px;
 }
 .featured-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+.featured-playing {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 12px; margin-bottom: 4px;
+  font-size: 13px; color: #4ade80;
+  background: rgba(74,222,128,0.08);
+  border: 1px solid rgba(74,222,128,0.2);
+  border-radius: 20px; padding: 4px 12px;
+  font-family: var(--mono);
+}
+.game-active-users {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 12px;
+  color: #4ade80; margin-top: 2px;
+}
+.game-active-label {
+  font-size: 10px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted); opacity: 0.8;
+}
+@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.75)} }
+.game-playing-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #4ade80; flex-shrink: 0;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
 
 .games-grid {
   display: grid;
@@ -1665,52 +1691,7 @@ body[data-cards="sharp"] .news-card { border-radius: 2px; }
 .ue5-corners::before { top: 12px; left: 12px; border-right: none; border-bottom: none; }
 .ue5-corners::after { bottom: 12px; right: 12px; border-left: none; border-top: none; }
 
-/* ── Roblox active users ──────────────────────────────────────────── */
-.game-playing-dot {
-  display: inline-block;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 6px #22c55e;
-  animation: pulse-green 2s ease-in-out infinite;
-  flex-shrink: 0;
-}
-@keyframes pulse-green {
-  0%, 100% { opacity: 1; box-shadow: 0 0 6px #22c55e; }
-  50%       { opacity: 0.6; box-shadow: 0 0 12px #22c55e; }
-}
 
-/* Active users line inside card body */
-.game-active-users {
-  display: flex; align-items: center; gap: 6px;
-  margin-top: 6px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: #86efac;
-  font-weight: 700;
-}
-.game-active-label {
-  font-weight: 400;
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-/* Active users on featured card */
-.featured-playing {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(34,197,94,0.08);
-  border: 1px solid rgba(34,197,94,0.25);
-  border-radius: 20px;
-  padding: 5px 14px 5px 10px;
-  font-family: var(--mono);
-  font-size: 13px;
-  color: #86efac;
-  margin-bottom: 10px;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
-}
 
 </style>
 </head>
@@ -2216,7 +2197,8 @@ window.DEFAULT_DEVS = /*DEVS_START*/[
   },
   {
     "engines": [
-      "Roblox"
+      "Roblox",
+      "Unreal Engine 5"
     ],
     "games": [
       "pixel-cultivation",
@@ -2242,9 +2224,10 @@ window.DEFAULT_DEVS = /*DEVS_START*/[
       "modeling",
       "art2d",
       "ui",
-      "animation"
+      "animation",
+      "vfx"
     ],
-    "cpu": "Ryzen 7 5700X",
+    "cpu": "Ryzen 7 5700G",
     "ram": "8GB"
   }
 ]/*DEVS_END*/;
@@ -2254,6 +2237,8 @@ window.DEFAULT_DEVS = /*DEVS_START*/[
 
 </script>
 <script id="outside-app" type="text/babel">
+
+
 // Main React app for Outside Studio website
 const { useState, useEffect, useRef } = React;
 
@@ -2503,6 +2488,8 @@ const Hero = ({ lang }) => {
   );
 };
 
+const getPlaceId = (url) => (url || '').match(/roblox\.com\/games\/(\d+)/)?.[1];
+
 const GameCard = ({ game, lang, onOpen, stats }) => {
   const t = window.OUTSIDE_I18N[lang];
   const statusMap = {
@@ -2551,6 +2538,12 @@ const FeaturedCard = ({ game, lang, onOpen, stats }) => {
             <span className="dot" /> {t.games_featured}
           </div>
           <h3 className="featured-title">{game.title}</h3>
+          <div className="featured-tag">{genreLabel(game, lang)}</div>
+          <div className="featured-meta-row">
+            <EngineTag engine={game.engine} />
+            <PlatformBadges platforms={game.platforms} />
+          </div>
+          <p className="featured-desc">{lang === "pt" ? game.desc_pt : game.desc_en}</p>
           {stats != null && (
             <div className="featured-playing">
               <span className="game-playing-dot" />
@@ -2558,12 +2551,6 @@ const FeaturedCard = ({ game, lang, onOpen, stats }) => {
               {lang === "pt" ? " usuários ativos" : " active users"}
             </div>
           )}
-          <div className="featured-tag">{genreLabel(game, lang)}</div>
-          <div className="featured-meta-row">
-            <EngineTag engine={game.engine} />
-            <PlatformBadges platforms={game.platforms} />
-          </div>
-          <p className="featured-desc">{lang === "pt" ? game.desc_pt : game.desc_en}</p>
         </div>
         <div className="featured-ctas">
           {game.url && (
@@ -2579,9 +2566,6 @@ const FeaturedCard = ({ game, lang, onOpen, stats }) => {
     </div>
   );
 };
-
-// Extract Roblox place ID from a game URL
-const getPlaceId = (url) => (url || '').match(/roblox\.com\/games\/(\d+)/)?.[1];
 
 const Games = ({ lang, onOpen, games, robloxStats = {} }) => {
   const t = window.OUTSIDE_I18N[lang];
@@ -3207,7 +3191,6 @@ const App = () => {
   const [news, setNewsState] = useState(() => window.loadLS(window.LS_NEWS, window.OUTSIDE_NEWS.map(n => ({...n, id: n.id || Math.random().toString(36).slice(2,9)}))));
   const [robloxStats, setRobloxStats] = useState({});
 
-  // Fetch player counts from stats.json (updated by GitHub Actions every ~15 min)
   useEffect(() => {
     fetch('./stats.json?_=' + Date.now())
       .then(r => r.json())
@@ -3304,6 +3287,8 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
+
+
 
 </script>
 </body>
