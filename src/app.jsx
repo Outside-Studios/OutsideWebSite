@@ -872,8 +872,9 @@ const App = () => {
     document.documentElement.style.setProperty("--glow", a.glow);
   }, [tweaks]);
 
-  // admin open: #admin hash or Ctrl+Shift+A
+  // admin open: #admin hash or Ctrl+Shift+A (only when panel is available)
   useEffect(() => {
+    if (!window.AdminPanel) return;
     const checkHash = () => { if (location.hash === "#admin") setAdminOpen(true); };
     checkHash();
     window.addEventListener("hashchange", checkHash);
@@ -919,15 +920,15 @@ const App = () => {
       <Modal game={modalGame} lang={lang} onClose={() => setModalGame(null)} allNews={news} onOpenNews={setModalNews} />
       {modalNews && <NewsModal item={modalNews} lang={lang} onClose={() => setModalNews(null)} />}
       <TweaksPanel open={tweaksOpen} tweaks={tweaks} setTweak={setTweak} />
-      <window.AdminPanel
+      {window.AdminPanel && <window.AdminPanel
         open={adminOpen}
         onClose={() => setAdminOpen(false)}
         games={games} setGames={setGames}
         devs={devs} setDevs={setDevs}
         news={news} setNews={setNews}
         lang={lang}
-      />
-      <button className="admin-fab" title="Admin (Ctrl+Shift+A)" onClick={() => setAdminOpen(true)}>◆</button>
+      />}
+      {window.AdminPanel && <button className="admin-fab" title="Admin (Ctrl+Shift+A)" onClick={() => setAdminOpen(true)}>◆</button>}
     </>
   );
 };
