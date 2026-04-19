@@ -2070,10 +2070,6 @@ window.OUTSIDE_I18N = {
     unreal_platform: "PC · Em breve",
     unreal_follow: "Acompanhar no Discord",
     admin_title: "Painel ADM",
-    admin_login: "Digite a senha de administrador",
-    admin_login_btn: "Entrar",
-    admin_wrong: "Senha incorreta",
-    admin_logout: "Sair",
     admin_tab_games: "Jogos",
     admin_tab_devs: "Desenvolvedores",
     admin_add_game: "+ Adicionar jogo",
@@ -2166,10 +2162,6 @@ window.OUTSIDE_I18N = {
     unreal_platform: "PC · Coming soon",
     unreal_follow: "Follow on Discord",
     admin_title: "Admin Panel",
-    admin_login: "Enter admin password",
-    admin_login_btn: "Sign in",
-    admin_wrong: "Wrong password",
-    admin_logout: "Sign out",
     admin_tab_games: "Games",
     admin_tab_devs: "Developers",
     admin_add_game: "+ Add game",
@@ -2347,24 +2339,6 @@ window.OUTSIDE_NEWS = /*NEWS_START*/[
 const LS_GAMES = "outside_games_v1";
 const LS_DEVS = "outside_devs_v1";
 const LS_NEWS = "outside_news_v1";
-const LS_ADMIN_AUTH = "outside_admin_session_v2"; // stores session expiry timestamp
-const LS_ADMIN_HASH = "outside_admin_hash_v2";    // stores sha256 of password
-const LS_ADMIN_ATTEMPTS = "outside_admin_attempts";
-const LS_ADMIN_LOCKOUT = "outside_admin_lockout";
-const MAX_ATTEMPTS = 3;
-const LOCKOUT_MS = 5 * 60 * 1000;   // 5 minutes
-const SESSION_MS = 24 * 60 * 60 * 1000; // 24 hours
-
-// SHA-256 via Web Crypto API (async)
-async function sha256hex(str) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-// On first load: if no hash stored yet, hash the bootstrap password and store it.
-// After that the plaintext is never needed again — change it via the panel.
-const BAKED_HASH = /*HASH_START*/""/*HASH_END*/;
-(async () => { if (!localStorage.getItem(LS_ADMIN_HASH)) { localStorage.setItem(LS_ADMIN_HASH, BAKED_HASH || await sha256hex("outside2026")); } })();
 
 const PLATFORMS = ["PC", "Mobile", "Xbox", "PlayStation", "Browser"];
 const DEV_ENGINES = ["Roblox", "Unreal Engine 5", "Unreal Engine 4", "Unity", "Godot", "Custom"];
@@ -2556,96 +2530,12 @@ const UnrealTeaser = ({ lang }) => {
 const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNews, lang }) => {
   const t = window.OUTSIDE_I18N[lang];
 
-  // Session: stored value is expiry timestamp (ms). Valid if in the future.
-  const sessionValid = () => {
-    const exp = parseInt(sessionStorage.getItem(LS_ADMIN_AUTH) || "0");
-    return Date.now() < exp;
-  };
-
-  const [authed, setAuthed] = React.useState(sessionValid);
-  const [pwd, setPwd] = React.useState("");
-  const [err, setErr] = React.useState("");
-  const [lockoutLeft, setLockoutLeft] = React.useState(0); // seconds remaining
   const [tab, setTab] = React.useState("games");
   const [editing, setEditing] = React.useState(null);
-  const [changingPwd, setChangingPwd] = React.useState(false);
-  const [cpFields, setCpFields] = React.useState({ cur: "", next: "", confirm: "" });
-  const [cpErr, setCpErr] = React.useState("");
-
-  // Tick lockout countdown
-  React.useEffect(() => {
-    const lockout = parseInt(localStorage.getItem(LS_ADMIN_LOCKOUT) || "0");
-    if (Date.now() < lockout) {
-      setLockoutLeft(Math.ceil((lockout - Date.now()) / 1000));
-      const id = setInterval(() => {
-        const rem = Math.ceil((parseInt(localStorage.getItem(LS_ADMIN_LOCKOUT) || "0") - Date.now()) / 1000);
-        if (rem <= 0) { clearInterval(id); setLockoutLeft(0); setErr(""); }
-        else setLockoutLeft(rem);
-      }, 1000);
-      return () => clearInterval(id);
-    }
-  }, [open]);
 
   React.useEffect(() => {
-    if (!open) { setEditing(null); setPwd(""); setErr(""); setChangingPwd(false); setCpFields({ cur: "", next: "", confirm: "" }); setCpErr(""); }
+    if (!open) setEditing(null);
   }, [open]);
-
-  const tryLogin = async () => {
-    // Check lockout
-    const lockout = parseInt(localStorage.getItem(LS_ADMIN_LOCKOUT) || "0");
-    if (Date.now() < lockout) {
-      const rem = Math.ceil((lockout - Date.now()) / 60000);
-      setErr(`Bloqueado. Aguarde ${rem} min.`);
-      return;
-    }
-
-    const storedHash = localStorage.getItem(LS_ADMIN_HASH);
-    const inputHash = await sha256hex(pwd);
-
-    if (inputHash === storedHash) {
-      localStorage.removeItem(LS_ADMIN_ATTEMPTS);
-      localStorage.removeItem(LS_ADMIN_LOCKOUT);
-      sessionStorage.setItem(LS_ADMIN_AUTH, (Date.now() + SESSION_MS).toString());
-      setAuthed(true);
-      setErr("");
-      setLockoutLeft(0);
-    } else {
-      const attempts = parseInt(localStorage.getItem(LS_ADMIN_ATTEMPTS) || "0") + 1;
-      localStorage.setItem(LS_ADMIN_ATTEMPTS, attempts.toString());
-      if (attempts >= MAX_ATTEMPTS) {
-        const exp = Date.now() + LOCKOUT_MS;
-        localStorage.setItem(LS_ADMIN_LOCKOUT, exp.toString());
-        localStorage.removeItem(LS_ADMIN_ATTEMPTS);
-        setLockoutLeft(LOCKOUT_MS / 1000);
-        setErr("Muitas tentativas incorretas. Bloqueado por 5 minutos.");
-      } else {
-        const left = MAX_ATTEMPTS - attempts;
-        setErr(`${t.admin_wrong} — ${left} tentativa${left !== 1 ? "s" : ""} restante${left !== 1 ? "s" : ""}.`);
-        setTimeout(() => setErr(""), 3000);
-      }
-    }
-    setPwd("");
-  };
-
-  const logout = () => {
-    setAuthed(false);
-    sessionStorage.removeItem(LS_ADMIN_AUTH);
-    onClose();
-  };
-
-  const doChangePassword = async () => {
-    setCpErr("");
-    const storedHash = localStorage.getItem(LS_ADMIN_HASH);
-    const curHash = await sha256hex(cpFields.cur);
-    if (curHash !== storedHash) { setCpErr("Senha atual incorreta."); return; }
-    if (cpFields.next.length < 8) { setCpErr("Nova senha: mínimo 8 caracteres."); return; }
-    if (cpFields.next !== cpFields.confirm) { setCpErr("As senhas não coincidem."); return; }
-    const newHash = await sha256hex(cpFields.next);
-    localStorage.setItem(LS_ADMIN_HASH, newHash);
-    setChangingPwd(false);
-    setCpFields({ cur: "", next: "", confirm: "" });
-    alert("Senha alterada com sucesso!");
-  };
 
   const startAddGame = () => setEditing({
     type: "game", isNew: true,
@@ -2731,8 +2621,6 @@ const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNe
     dataScript = dataScript.replace(/\/\*GAMES_START\*\/[\s\S]*?\/\*GAMES_END\*\//, `/*GAMES_START*/${JSON.stringify(games, null, 2)}/*GAMES_END*/`);
     dataScript = dataScript.replace(/\/\*NEWS_START\*\/[\s\S]*?\/\*NEWS_END\*\//, `/*NEWS_START*/${JSON.stringify(news, null, 2)}/*NEWS_END*/`);
     adminScript = adminScript.replace(/\/\*DEVS_START\*\/[\s\S]*?\/\*DEVS_END\*\//, `/*DEVS_START*/${JSON.stringify(devs, null, 2)}/*DEVS_END*/`);
-    const currentHash = localStorage.getItem('outside_admin_hash_v2') || '';
-    if (currentHash) adminScript = adminScript.replace(/\/\*HASH_START\*\/[\s\S]*?\/\*HASH_END\*\//, `/*HASH_START*/"${currentHash}"/*HASH_END*/`);
     const headLinks = [...document.head.querySelectorAll('link, script[src]')].map(el => el.outerHTML).join('\n');
     const html = `<!doctype html>\n<html lang="pt">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>Outside Studio</title>\n${headLinks}\n<style>\n${css}\n</style>\n</head>\n<body>\n<div id="root"></div>\n<script id="outside-data">\n${dataScript}\n<\/script>\n<script id="outside-admin" type="text/babel">\n${adminScript}\n<\/script>\n<script id="outside-app" type="text/babel">\n${appScript}\n<\/script>\n</body>\n</html>`;
     const blob = new Blob([html], { type: 'text/html' });
@@ -2767,34 +2655,7 @@ const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNe
           </div>
         </div>
 
-        {!authed ? (
-          <div className="admin-login">
-            <div className="admin-login-box">
-              <div className="admin-login-icon"><span>◆</span></div>
-              <h3>{t.admin_title}</h3>
-              <p>{t.admin_login}</p>
-              <input
-                type="password"
-                value={pwd}
-                onChange={(e) => setPwd(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !lockoutLeft && tryLogin()}
-                placeholder="••••••••"
-                autoFocus
-                disabled={!!lockoutLeft}
-              />
-              <div className="error" style={{ minHeight: 18 }}>{err}</div>
-              {lockoutLeft > 0 && (
-                <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "oklch(0.7 0.18 50)", letterSpacing: "0.08em", textAlign: "center" }}>
-                  ⏱ {Math.floor(lockoutLeft / 60)}:{String(lockoutLeft % 60).padStart(2, "0")}
-                </div>
-              )}
-              <button className="admin-btn primary" onClick={tryLogin} disabled={!!lockoutLeft}>
-                {t.admin_login_btn} →
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
+        <>
             <div className="admin-tabs">
               <button className={`admin-tab ${tab === "games" ? "active" : ""}`} onClick={() => { setTab("games"); setEditing(null); }}>
                 {t.admin_tab_games} ({games.length})
@@ -2902,38 +2763,10 @@ const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNe
                 </>
               )}
             </div>
-            {changingPwd && (
-              <div style={{ position: "absolute", inset: 0, background: "rgba(7,11,20,0.92)", zIndex: 10, display: "grid", placeItems: "center", padding: 32 }}>
-                <div style={{ width: "100%", maxWidth: 400, background: "var(--panel)", border: "1px solid var(--accent)", borderRadius: 10, padding: 32, display: "grid", gap: 16 }}>
-                  <div style={{ fontFamily: "var(--display)", fontSize: 18, fontWeight: 500, color: "var(--accent)" }}>// ALTERAR SENHA</div>
-                  {[
-                    { label: "Senha atual", key: "cur" },
-                    { label: "Nova senha (mín. 8 chars)", key: "next" },
-                    { label: "Confirmar nova senha", key: "confirm" },
-                  ].map(({ label, key }) => (
-                    <div className="admin-field" key={key}>
-                      <label>{label}</label>
-                      <input type="password" value={cpFields[key]} onChange={(e) => setCpFields({ ...cpFields, [key]: e.target.value })}
-                        onKeyDown={(e) => e.key === "Enter" && doChangePassword()} />
-                    </div>
-                  ))}
-                  {cpErr && <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "oklch(0.7 0.2 25)", letterSpacing: "0.08em" }}>{cpErr}</div>}
-                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                    <button className="admin-btn" onClick={() => { setChangingPwd(false); setCpErr(""); setCpFields({ cur: "", next: "", confirm: "" }); }}>Cancelar</button>
-                    <button className="admin-btn primary" onClick={doChangePassword}>Salvar →</button>
-                  </div>
-                </div>
-              </div>
-            )}
-            {authed && (
-              <div className="admin-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <button className="admin-text-link" onClick={() => setChangingPwd(true)}>🔑 Alterar senha</button>
-                <button className="admin-btn primary" onClick={exportHTML} style={{ marginLeft: "auto" }}>⬇ Exportar HTML</button>
-                <button className="admin-text-link" onClick={logout}>← {t.admin_logout}</button>
-              </div>
-            )}
+            <div className="admin-footer">
+              <button className="admin-btn primary" onClick={exportHTML}>⬇ Exportar HTML</button>
+            </div>
           </>
-        )}
       </div>
     </div>
   );
