@@ -310,7 +310,7 @@ const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNe
   const startAddGame = () => setEditing({
     type: "game", isNew: true,
     data: {
-      id: uid(), title: "", tag: "", url: "",
+      id: uid(), title: "", tag: "", url: "", wiki: "",
       image: "", engine: "Roblox", platforms: ["PC", "Mobile", "Xbox"],
       images: [],
       genres: [],
@@ -667,6 +667,10 @@ const GameForm = ({ editing, onSave, onCancel, t }) => {
         <div className="admin-field" style={{ gridColumn: "1 / -1" }}>
           <label>URL (Roblox ou outra plataforma — opcional)</label>
           <input value={d.url} onChange={(e) => up("url", e.target.value)} placeholder="https://..." />
+        </div>
+        <div className="admin-field" style={{ gridColumn: "1 / -1" }}>
+          <label>Wiki URL (opcional)</label>
+          <input value={d.wiki || ""} onChange={(e) => up("wiki", e.target.value)} placeholder="https://... (link para a wiki do jogo)" />
         </div>
         <div className="admin-field" style={{ gridColumn: "1 / -1" }}>
           <label>Banner / Imagem de capa (URL)</label>

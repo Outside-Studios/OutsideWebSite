@@ -714,6 +714,12 @@ const Modal = ({ game, lang, onClose, allNews, onOpenNews }) => {
                   {t.games_play} <span className="arrow">→</span>
                 </a>
               )}
+              {game.wiki && (
+                <a className="btn btn-ghost" href={game.wiki} target="_blank" rel="noreferrer">
+                  <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ flexShrink: 0 }}><circle cx="8" cy="8" r="6.5"/><path d="M8 1.5C8 1.5 6 4 6 8s2 6.5 2 6.5M8 1.5C8 1.5 10 4 10 8s-2 6.5-2 6.5M1.5 8h13"/></svg>
+                  Wiki <span className="arrow">→</span>
+                </a>
+              )}
             </div>
             {gameDevlogs.length > 0 && (
               <div className="modal-devlogs">
