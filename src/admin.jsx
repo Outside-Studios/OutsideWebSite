@@ -391,7 +391,7 @@ const AdminPanel = ({ open, onClose, games, setGames, devs, setDevs, news, setNe
     const currentHash = localStorage.getItem('outside_admin_hash_v2') || '';
     if (currentHash) adminScript = adminScript.replace(/\/\*HASH_START\*\/[\s\S]*?\/\*HASH_END\*\//, `/*HASH_START*/"${currentHash}"/*HASH_END*/`);
     const headLinks = [...document.head.querySelectorAll('link, script[src]')].map(el => el.outerHTML).join('\n');
-    const html = `<!doctype html>\n<html lang="pt">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>Outside Studio</title>\n${headLinks}\n<style>\n${css}\n</style>\n</head>\n<body>\n<div id="root"></div>\n<script id="outside-data">\n${dataScript}\n</script>\n<script id="outside-admin" type="text/babel">\n${adminScript}\n</script>\n<script id="outside-app" type="text/babel">\n${appScript}\n</script>\n</body>\n</html>`;
+    const html = `<!doctype html>\n<html lang="pt">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>Outside Studio</title>\n${headLinks}\n<style>\n${css}\n</style>\n</head>\n<body>\n<div id="root"></div>\n<script id="outside-data">\n${dataScript}\n<\/script>\n<script id="outside-admin" type="text/babel">\n${adminScript}\n<\/script>\n<script id="outside-app" type="text/babel">\n${appScript}\n<\/script>\n</body>\n</html>`;
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
