@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
@@ -8,13 +8,12 @@
 <meta http-equiv="Expires" content="0">
 <title>Outside Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
 <style>
-
 /* Outside Studio — Cyberpunk neon, emerald + cyan on midnight */
 :root {
   --bg: #070b14;
@@ -1666,11 +1665,62 @@ body[data-cards="sharp"] .news-card { border-radius: 2px; }
 .ue5-corners::before { top: 12px; left: 12px; border-right: none; border-bottom: none; }
 .ue5-corners::after { bottom: 12px; right: 12px; border-left: none; border-top: none; }
 
+/* ── Roblox live player count badges ──────────────────────────────── */
+.game-playing-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  animation: pulse-green 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px #22c55e; }
+  50%       { opacity: 0.6; box-shadow: 0 0 12px #22c55e; }
+}
+
+/* Badge over grid card thumbnail */
+.game-playing-badge {
+  position: absolute;
+  bottom: 8px; left: 8px;
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 20px;
+  padding: 3px 9px 3px 7px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #86efac;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+/* Badge on featured card */
+.featured-playing {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 20px;
+  padding: 4px 12px 4px 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #86efac;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script id="outside-data">
+
+
+
 
 // Bilingual dictionary (PT-BR / EN)
 window.OUTSIDE_I18N = {
@@ -2200,9 +2250,11 @@ window.DEFAULT_DEVS = /*DEVS_START*/[
   }
 ]/*DEVS_END*/;
 
+
+
+
 </script>
 <script id="outside-app" type="text/babel">
-
 // Main React app for Outside Studio website
 const { useState, useEffect, useRef } = React;
 
@@ -2468,6 +2520,12 @@ const GameCard = ({ game, lang, onOpen }) => {
         </div>
         <div className="game-year">{game.year}</div>
         <div className="game-engine-overlay"><EngineTag engine={game.engine} /></div>
+        {stats && stats.playing > 0 && (
+          <div className="game-playing-badge">
+            <span className="game-playing-dot" />
+            {stats.playing.toLocaleString()}
+          </div>
+        )}
       </div>
       <div className="game-body">
         <div className="game-title">{game.title}</div>
@@ -2480,7 +2538,7 @@ const GameCard = ({ game, lang, onOpen }) => {
   );
 };
 
-const FeaturedCard = ({ game, lang, onOpen }) => {
+const FeaturedCard = ({ game, lang, onOpen, stats }) => {
   const t = window.OUTSIDE_I18N[lang];
   return (
     <div className="featured-card">
@@ -2493,6 +2551,12 @@ const FeaturedCard = ({ game, lang, onOpen }) => {
             <span className="dot" /> {t.games_featured}
           </div>
           <h3 className="featured-title">{game.title}</h3>
+          {stats && stats.playing > 0 && (
+            <div className="featured-playing">
+              <span className="game-playing-dot" />
+              {stats.playing.toLocaleString()} {lang === "pt" ? "jogando agora" : "playing now"}
+            </div>
+          )}
           <div className="featured-tag">{genreLabel(game, lang)}</div>
           <div className="featured-meta-row">
             <EngineTag engine={game.engine} />
@@ -2515,7 +2579,10 @@ const FeaturedCard = ({ game, lang, onOpen }) => {
   );
 };
 
-const Games = ({ lang, onOpen, games }) => {
+// Extract Roblox place ID from a game URL
+const getPlaceId = (url) => (url || '').match(/roblox\.com\/games\/(\d+)/)?.[1];
+
+const Games = ({ lang, onOpen, games, robloxStats = {} }) => {
   const t = window.OUTSIDE_I18N[lang];
   const featured = games.find((g) => g.featured);
   const others = games.filter((g) => !g.featured);
@@ -2530,10 +2597,10 @@ const Games = ({ lang, onOpen, games }) => {
             <p className="section-sub">{t.games_sub}</p>
           </div>
         </div>
-        {featured && <FeaturedCard game={featured} lang={lang} onOpen={onOpen} />}
+        {featured && <FeaturedCard game={featured} lang={lang} onOpen={onOpen} stats={robloxStats[getPlaceId(featured.url)]} />}
         <div className="games-grid">
           {others.map((g) => (
-            <GameCard key={g.id} game={g} lang={lang} onOpen={onOpen} />
+            <GameCard key={g.id} game={g} lang={lang} onOpen={onOpen} stats={robloxStats[getPlaceId(g.url)]} />
           ))}
         </div>
       </div>
@@ -3137,6 +3204,15 @@ const App = () => {
   const [games, setGamesState] = useState(() => window.loadLS(window.LS_GAMES, window.OUTSIDE_GAMES.map(g => ({...g}))));
   const [devs, setDevsState] = useState(() => window.loadLS(window.LS_DEVS, window.DEFAULT_DEVS.map(d => ({...d}))));
   const [news, setNewsState] = useState(() => window.loadLS(window.LS_NEWS, window.OUTSIDE_NEWS.map(n => ({...n, id: n.id || Math.random().toString(36).slice(2,9)}))));
+  const [robloxStats, setRobloxStats] = useState({});
+
+  // Fetch player counts from stats.json (updated by GitHub Actions every ~15 min)
+  useEffect(() => {
+    fetch('./stats.json?_=' + Date.now())
+      .then(r => r.json())
+      .then(d => setRobloxStats(d.games || {}))
+      .catch(() => {});
+  }, []);
 
   const setGames = (g) => { setGamesState(g); window.saveLS(window.LS_GAMES, g); };
   const setDevs = (d) => { setDevsState(d); window.saveLS(window.LS_DEVS, d); };
@@ -3200,7 +3276,7 @@ const App = () => {
       <Nav lang={lang} setLang={setLang} />
       <main>
         <Hero lang={lang} />
-        <Games lang={lang} onOpen={setModalGame} games={games} />
+        <Games lang={lang} onOpen={setModalGame} games={games} robloxStats={robloxStats} />
         <UnrealTeaser lang={lang} />
         <Team lang={lang} members={devs} games={games} />
         <Goals lang={lang} />
