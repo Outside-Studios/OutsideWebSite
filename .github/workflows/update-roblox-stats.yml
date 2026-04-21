@@ -17,61 +17,71 @@ jobs:
 
       - name: Fetch Roblox player counts
         run: |
-          set -e
+          python3 - <<'EOF'
+          import json, re, time, sys
+          from datetime import datetime, timezone
+          from urllib.request import urlopen, Request
+          from urllib.error import URLError
 
-          # Extract place IDs from Roblox game URLs baked in index.html
-          PLACE_IDS=$(grep -o '"url": "https://www\.roblox\.com/games/[0-9]*' index.html \
-                    | grep -o '[0-9]*$' | sort -u)
+          # Extract place IDs from index.html
+          with open("index.html", "r", encoding="utf-8") as f:
+              content = f.read()
 
-          echo "Place IDs found: $(echo $PLACE_IDS | tr '\n' ' ')"
+          place_ids = list(set(re.findall(r'"url":\s*"https://www\.roblox\.com/games/(\d+)', content)))
+          print(f"Place IDs found: {place_ids}")
 
-          GAMES_JSON=""
-          FIRST=true
+          def fetch(url, timeout=10):
+              try:
+                  req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                  with urlopen(req, timeout=timeout) as r:
+                      return json.loads(r.read())
+              except Exception as e:
+                  print(f"  Request failed for {url}: {e}")
+                  return {}
 
-          for PLACE_ID in $PLACE_IDS; do
-            echo "--- Processing place $PLACE_ID ---"
+          games = {}
+          for place_id in place_ids:
+              print(f"--- Processing place {place_id} ---")
 
-            # Step 1: place ID → universe ID
-            UNIV=$(curl -sf --max-time 8 \
-              "https://apis.roblox.com/universes/v1/places/$PLACE_ID/universe" || echo '{}')
-            UNIVERSE_ID=$(echo "$UNIV" | grep -o '"universeId":[0-9]*' | grep -o '[0-9]*')
+              # Step 1: place ID → universe ID
+              data = fetch(f"https://apis.roblox.com/universes/v1/places/{place_id}/universe")
+              universe_id = data.get("universeId")
+              if not universe_id:
+                  print(f"  No universe found, skipping")
+                  time.sleep(0.5)
+                  continue
 
-            if [ -z "$UNIVERSE_ID" ]; then
-              echo "  No universe for place $PLACE_ID, skipping"
-              sleep 0.4
-              continue
-            fi
+              time.sleep(0.5)
 
-            sleep 0.4
+              # Step 2: universe ID → playing / visits
+              gdata = fetch(f"https://games.roblox.com/v1/games?universeIds={universe_id}")
+              game_list = gdata.get("data", [])
+              playing = game_list[0].get("playing", 0) if game_list else 0
+              visits  = game_list[0].get("visits",  0) if game_list else 0
 
-            # Step 2: universe ID → playing / visits
-            GDATA=$(curl -sf --max-time 8 \
-              "https://games.roblox.com/v1/games?universeIds=$UNIVERSE_ID" || echo '{}')
-            PLAYING=$(echo "$GDATA" | grep -o '"playing":[0-9]*' | head -1 | grep -o '[0-9]*')
-            VISITS=$(echo  "$GDATA" | grep -o '"visits":[0-9]*'  | head -1 | grep -o '[0-9]*')
-            PLAYING=${PLAYING:-0}
-            VISITS=${VISITS:-0}
-
-            echo "  universeId=$UNIVERSE_ID  playing=$PLAYING  visits=$VISITS"
-
-            if [ "$FIRST" = true ]; then FIRST=false; else GAMES_JSON="$GAMES_JSON,"; fi
-            GAMES_JSON="${GAMES_JSON}\"${PLACE_ID}\":{\"playing\":${PLAYING},\"visits\":${VISITS}}"
-
-            sleep 0.4
-          done
+              print(f"  universeId={universe_id}  playing={playing}  visits={visits}")
+              games[place_id] = {"playing": playing, "visits": visits}
+              time.sleep(0.5)
 
           # Write stats.json
-          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          printf '{"updated":"%s","games":{%s}}\n' "$TIMESTAMP" "$GAMES_JSON" > stats.json
+          timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          stats = {"updated": timestamp, "games": games}
+          with open("stats.json", "w") as f:
+              json.dump(stats, f)
 
-          echo "stats.json:"
-          cat stats.json
+          print("stats.json written:")
+          print(json.dumps(stats, indent=2))
+          EOF
 
       - name: Commit stats
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add stats.json
-          git diff --staged --quiet \
-            && echo "No changes to commit" \
-            || git commit -m "chore: update roblox stats [skip ci]" && git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update roblox stats [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi
