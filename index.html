@@ -342,46 +342,36 @@ section { padding: 120px 0; position: relative; }
   text-transform: uppercase;
   margin-top: 8px;
 }
-.hero-live-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border-bottom: 1px solid var(--border);
-}
-.hero-live-stat {
-  padding: 20px 0;
-  background: var(--bg);
-  position: relative;
-}
-.hero-live-stat::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(74,222,128,0.03) 0%, transparent 60%);
-  pointer-events: none;
-}
-.hero-live-num {
-  font-family: var(--display);
-  font-size: 36px;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  background: linear-gradient(180deg, #4ade80 0%, var(--cyan) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.hero-live-label {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-top: 8px;
+.hero-live-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 28px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(90deg, rgba(74,222,128,0.03) 0%, rgba(34,197,211,0.03) 100%);
+}
+.hero-live-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.hero-live-item strong {
+  color: #4ade80;
+  font-size: 14px;
+  letter-spacing: 0;
+}
+.hero-live-item.visits strong {
+  color: var(--accent-2);
+}
+.hero-live-sep {
+  width: 1px; height: 16px;
+  background: var(--border);
 }
 .hero-live-dot {
   width: 6px; height: 6px; border-radius: 50%;
@@ -2553,14 +2543,17 @@ const Hero = ({ lang, robloxStats = {} }) => {
             const totalPlaying = Object.values(robloxStats).reduce((s, g) => s + (g.playing || 0), 0);
             const totalVisits  = Object.values(robloxStats).reduce((s, g) => s + (g.visits  || 0), 0);
             return (
-              <div className="hero-live-stats">
-                <div className="hero-live-stat">
-                  <div className="hero-live-num">{totalPlaying.toLocaleString()}</div>
-                  <div className="hero-live-label"><span className="hero-live-dot" />{t.hero_live_players}</div>
+              <div className="hero-live-bar">
+                <div className="hero-live-item">
+                  <span className="hero-live-dot" />
+                  <strong>{totalPlaying.toLocaleString()}</strong>
+                  {t.hero_live_players}
                 </div>
-                <div className="hero-live-stat">
-                  <div className="hero-live-num">{fmtVisits(totalVisits)}</div>
-                  <div className="hero-live-label"><span className="hero-live-dot" />{t.hero_live_visits}</div>
+                <div className="hero-live-sep" />
+                <div className="hero-live-item visits">
+                  <span>👁</span>
+                  <strong>{fmtVisits(totalVisits)}</strong>
+                  {t.hero_live_visits}
                 </div>
               </div>
             );
