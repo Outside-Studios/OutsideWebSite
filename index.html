@@ -342,6 +342,52 @@ section { padding: 120px 0; position: relative; }
   text-transform: uppercase;
   margin-top: 8px;
 }
+.hero-live-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.hero-live-stat {
+  padding: 20px 0;
+  background: var(--bg);
+  position: relative;
+}
+.hero-live-stat::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(74,222,128,0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-live-num {
+  font-family: var(--display);
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, #4ade80 0%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-live-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4ade80; flex-shrink: 0;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
 
 /* Hero decorative frame */
 .hero-frame {
@@ -1741,6 +1787,8 @@ window.OUTSIDE_I18N = {
     hero_stat_games: "Jogos lançados",
     hero_stat_team: "Desenvolvedores",
     hero_stat_community: "Comunidade",
+    hero_live_players: "Jogadores online",
+    hero_live_visits: "Visitas totais",
     games_kicker: "// NOSSO CATÁLOGO",
     games_title: "Jogos desenvolvidos pela Outside",
     games_sub: "Do cultivo pixel art às jornadas isekai — cada jogo é uma nova dimensão.",
@@ -1833,6 +1881,8 @@ window.OUTSIDE_I18N = {
     hero_stat_games: "Games released",
     hero_stat_team: "Developers",
     hero_stat_community: "Community",
+    hero_live_players: "Online players",
+    hero_live_visits: "Total visits",
     games_kicker: "// OUR CATALOG",
     games_title: "Games developed by Outside",
     games_sub: "From pixel art cultivation to isekai journeys — every game a new dimension.",
@@ -2453,7 +2503,7 @@ const Nav = ({ lang, setLang }) => {
   );
 };
 
-const Hero = ({ lang }) => {
+const Hero = ({ lang, robloxStats = {} }) => {
   const t = window.OUTSIDE_I18N[lang];
   const titleBefore = lang === "pt" ? "Jogos são mais do que" : "Games are more than";
   const titleHL = lang === "pt" ? "entretenimento." : "entertainment.";
@@ -2499,6 +2549,22 @@ const Hero = ({ lang }) => {
               <div className="hero-stat-label">{t.hero_stat_community}</div>
             </div>
           </div>
+          {Object.keys(robloxStats).length > 0 && (() => {
+            const totalPlaying = Object.values(robloxStats).reduce((s, g) => s + (g.playing || 0), 0);
+            const totalVisits  = Object.values(robloxStats).reduce((s, g) => s + (g.visits  || 0), 0);
+            return (
+              <div className="hero-live-stats">
+                <div className="hero-live-stat">
+                  <div className="hero-live-num">{totalPlaying.toLocaleString()}</div>
+                  <div className="hero-live-label"><span className="hero-live-dot" />{t.hero_live_players}</div>
+                </div>
+                <div className="hero-live-stat">
+                  <div className="hero-live-num">{fmtVisits(totalVisits)}</div>
+                  <div className="hero-live-label"><span className="hero-live-dot" />{t.hero_live_visits}</div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
       <div className="hero-frame">
@@ -3322,7 +3388,7 @@ const App = () => {
       <div className="noise" />
       <Nav lang={lang} setLang={setLang} />
       <main>
-        <Hero lang={lang} />
+        <Hero lang={lang} robloxStats={robloxStats} />
         <Games lang={lang} onOpen={setModalGame} games={games} robloxStats={robloxStats} />
         <UnrealTeaser lang={lang} />
         <Team lang={lang} members={devs} games={games} />
