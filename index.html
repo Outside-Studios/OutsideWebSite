@@ -18,6 +18,7 @@
 
 
 
+
 /* Outside Studio — Cyberpunk neon, emerald + cyan on midnight */
 :root {
   --bg: #070b14;
@@ -508,6 +509,18 @@ section { padding: 120px 0; position: relative; }
   color: #4ade80; margin-top: 2px;
 }
 .game-active-label {
+  font-size: 10px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted); opacity: 0.8;
+}
+.game-visits {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 12px;
+  color: var(--cyan); margin-top: 2px; opacity: 0.85;
+}
+.game-visits-icon {
+  font-size: 11px; line-height: 1; flex-shrink: 0;
+}
+.game-visits-label {
   font-size: 10px; letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--text-muted); opacity: 0.8;
 }
@@ -1697,11 +1710,13 @@ body[data-cards="sharp"] .news-card { border-radius: 2px; }
 
 
 
+
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script id="outside-data">
+
 
 
 
@@ -1926,7 +1941,7 @@ window.OUTSIDE_GAMES = /*GAMES_START*/[
       "cultivation",
       "pixelart"
     ],
-    "wiki": "https://bloxinformer.com/"
+    "wiki": "bloxinformer.com/wikis/pixel-cultivation/"
   },
   {
     "id": "isekai-idle",
@@ -2258,8 +2273,10 @@ window.DEFAULT_DEVS = /*DEVS_START*/[
 
 
 
+
 </script>
 <script id="outside-app" type="text/babel">
+
 
 
 
@@ -2515,6 +2532,13 @@ const Hero = ({ lang }) => {
 
 const getPlaceId = (url) => (url || '').match(/roblox\.com\/games\/(\d+)/)?.[1];
 
+const fmtVisits = (n) => {
+  if (n == null) return "—";
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1_000)     return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return n.toLocaleString();
+};
+
 const GameCard = ({ game, lang, onOpen, stats }) => {
   const t = window.OUTSIDE_I18N[lang];
   const statusMap = {
@@ -2543,6 +2567,13 @@ const GameCard = ({ game, lang, onOpen, stats }) => {
             <span className="game-playing-dot" />
             <span>{stats.playing != null ? stats.playing.toLocaleString() : "—"}</span>
             <span className="game-active-label">{lang === "pt" ? "usuários ativos" : "active users"}</span>
+          </div>
+        )}
+        {stats != null && stats.visits > 0 && (
+          <div className="game-visits">
+            <span className="game-visits-icon">👁</span>
+            <span>{fmtVisits(stats.visits)}</span>
+            <span className="game-visits-label">{lang === "pt" ? "visitas" : "visits"}</span>
           </div>
         )}
       </div>
@@ -2574,6 +2605,13 @@ const FeaturedCard = ({ game, lang, onOpen, stats }) => {
               <span className="game-playing-dot" />
               <strong>{stats.playing != null ? stats.playing.toLocaleString() : "—"}</strong>
               {lang === "pt" ? " usuários ativos" : " active users"}
+            </div>
+          )}
+          {stats != null && stats.visits > 0 && (
+            <div className="featured-playing" style={{color:"var(--cyan)",borderColor:"rgba(34,211,238,0.25)",background:"rgba(34,211,238,0.07)",marginTop:"6px"}}>
+              <span>👁</span>
+              <strong>{fmtVisits(stats.visits)}</strong>
+              {lang === "pt" ? " visitas" : " visits"}
             </div>
           )}
         </div>
@@ -3312,6 +3350,7 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
+
 
 
 
