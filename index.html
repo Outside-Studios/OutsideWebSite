@@ -7,7 +7,6 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Outside Studio</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
@@ -15,6 +14,7 @@
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
 <style>
+
 
 
 
@@ -1803,11 +1803,13 @@ body[data-cards="sharp"] .news-card { border-radius: 2px; }
 
 
 
+
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script id="outside-data">
+
 
 
 
@@ -2018,11 +2020,11 @@ window.OUTSIDE_GAMES = /*GAMES_START*/[
   {
     "id": "pixel-cultivation",
     "title": "Pixel Cultivation",
-    "tag": "[PUBLIC TEST]",
+    "tag": "[NEW]",
     "url": "https://www.roblox.com/games/121905331003548/Pixel-Cultivation",
     "genre_pt": "Cultivo · Pixel Art · RPG",
     "genre_en": "Cultivation · Pixel Art · RPG",
-    "status": "soon",
+    "status": "live",
     "featured": true,
     "hue": 145,
     "hue2": 180,
@@ -2048,6 +2050,11 @@ window.OUTSIDE_GAMES = /*GAMES_START*/[
     "codes": [
       {
         "code": "FIRSTDAY",
+        "desc_pt": "5x Aptitude Pill",
+        "desc_en": "5x Aptitude Pill"
+      },
+      {
+        "code": "ILOVEYOU",
         "desc_pt": "5x Aptitude Pill",
         "desc_en": "5x Aptitude Pill"
       }
@@ -2386,9 +2393,9 @@ window.DEFAULT_DEVS = /*DEVS_START*/[
       "qa",
       "scripter"
     ],
-    "cpu": "Ryzen 9 9950X",
-    "gpu": "RX 9070 XT",
-    "ram": "16 GB"
+    "cpu": "Ryzen 9 6900HX",
+    "gpu": "",
+    "ram": "24 GB"
   },
   {
     "engines": [
@@ -2434,8 +2441,10 @@ window.DEFAULT_DEVS = /*DEVS_START*/[
 
 
 
+
 </script>
 <script id="outside-app" type="text/babel">
+
 
 
 
@@ -3561,6 +3570,7 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
+
 
 
 
