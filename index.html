@@ -1842,6 +1842,8 @@ window.OUTSIDE_I18N = {
     games_title: "Jogos desenvolvidos pela Outside",
     games_sub: "Do cultivo pixel art às jornadas isekai — cada jogo é uma nova dimensão.",
     games_featured: "LANÇAMENTO EM BREVE",
+    games_featured_live: "DESTAQUE",
+    games_featured_classic: "CLÁSSICO EM DESTAQUE",
     games_play: "Jogar no Roblox",
     games_details: "Ver detalhes",
     games_status_live: "AO VIVO",
@@ -1939,6 +1941,8 @@ window.OUTSIDE_I18N = {
     games_title: "Games developed by Outside",
     games_sub: "From pixel art cultivation to isekai journeys — every game a new dimension.",
     games_featured: "LAUNCHING SOON",
+    games_featured_live: "FEATURED",
+    games_featured_classic: "CLASSIC PICK",
     games_play: "Play on Roblox",
     games_details: "View details",
     games_status_live: "LIVE",
@@ -2780,7 +2784,11 @@ const FeaturedCard = ({ game, lang, onOpen, stats }) => {
       <div className="featured-body">
         <div>
           <div className="featured-badge">
-            <span className="dot" /> {t.games_featured}
+            <span className="dot" /> {{
+              live: t.games_featured_live,
+              soon: t.games_featured,
+              classic: t.games_featured_classic,
+            }[game.status] || t.games_featured}
           </div>
           <h3 className="featured-title">{game.title}</h3>
           <div className="featured-tag">{genreLabel(game, lang)}</div>
